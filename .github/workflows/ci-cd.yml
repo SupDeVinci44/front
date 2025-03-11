@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # Version de Node.js compatible avec React Native
+          node-version: '20'  # Version de Node.js compatible avec React Native
           cache: 'npm'  # Cache des dépendances npm
 
       - name: Install npm dependencies
@@ -27,7 +27,7 @@ jobs:
         run: npm test
 
       - name: Build React Native Project
-        run: npm run build  # Remplacez par la commande de build appropriée
+        run: npm run start  # Remplacez par la commande de build appropriée
 
       - name: Upload React Native Artifact
         uses: actions/upload-artifact@v4
