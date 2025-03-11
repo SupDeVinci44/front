@@ -1,0 +1,36 @@
+name: Full Stack CI (Java + React Native)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend:
+    name: Build and Test Frontend (React Native)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'  # Version de Node.js compatible avec React Native
+          cache: 'npm'  # Cache des dépendances npm
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Run React Native Tests
+        run: npm test
+
+      - name: Build React Native Project
+        run: npm run build  # Remplacez par la commande de build appropriée
+
+      - name: Upload React Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-native-app
+          path: build/  # Remplacez par le dossier de sortie de votre build
