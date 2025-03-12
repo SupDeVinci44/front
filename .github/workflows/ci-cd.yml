@@ -37,7 +37,7 @@ jobs:
       #   working-directory: React-native
 
       - name: Build React Native Project
-        run: expo export --platform web
+        run: npx expo export --platform web
         working-directory: React-native
         env:
           CI: true # Disable interactive prompts
