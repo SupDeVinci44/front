@@ -26,7 +26,6 @@ jobs:
         run: |
           npm install
           npm install --save-dev @types/react-native
-        working-directory: React-native
 
       - name: Install Expo CLI Globally
         run: npm install -g @expo/cli
@@ -38,6 +37,5 @@ jobs:
 
       - name: Build React Native Project
         run: npx expo export --platform web
-        working-directory: React-native
         env:
           CI: true # Disable interactive prompts
