@@ -13,26 +13,61 @@ export default function Index() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    // Simulate an API call
-    setTimeout(() => {
+    try {
+      const response = await fetch("https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/auth/authenticate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: emailOrPseudo,
+          password: password,
+        }),
+      });
+      const data = await response.json();
       setLoading(false);
-      console.log("Login successful");
-    }, 2000);
+      if (response.ok) {
+        console.log("Login successful", data);
+      } else {
+        setError(data.message || "Une erreur s'est produite");
+      }
+    } catch (error) {
+      setLoading(false);
+      setError("Une erreur s'est produite");
+    }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword && !showPassword) {
       setError("Les mots de passe ne correspondent pas");
       return;
     }
     setLoading(true);
-    // Simulate an API call
-    setTimeout(() => {
+    try {
+      const response = await fetch("https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: pseudo,
+          password: password,
+          email: email,
+        }),
+      });
+      const data = await response.json();
       setLoading(false);
-      console.log("Sign up successful");
-    }, 2000);
+      if (response.ok) {
+        console.log("Sign up successful", data);
+      } else {
+        setError(data.message || "Une erreur s'est produite");
+      }
+    } catch (error) {
+      setLoading(false);
+      setError("Une erreur s'est produite");
+    }
   };
 
   const getPasswordStrength = () => {
