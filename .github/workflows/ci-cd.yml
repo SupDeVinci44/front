@@ -19,8 +19,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm' # Cache for npm
-          cache-dependency-path: React-native/package-lock.json # Specify the lock file location
+          cache: 'npm'
+          cache-dependency-path: React-native/package-lock.json
 
       - name: Install npm Dependencies
         run: |
