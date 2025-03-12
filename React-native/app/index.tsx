@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { TextInput, Button, Text, ActivityIndicator } from "react-native-paper";
+import { useRouter } from "expo-router";
 
 export default function Index() {
   const [emailOrPseudo, setEmailOrPseudo] = useState("");
@@ -13,12 +14,15 @@ export default function Index() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const router = useRouter();
+
   const handleLogin = () => {
     setLoading(true);
     // Simulate an API call
     setTimeout(() => {
       setLoading(false);
       console.log("Login successful");
+      router.push("/home");
     }, 2000);
   };
 
@@ -32,6 +36,7 @@ export default function Index() {
     setTimeout(() => {
       setLoading(false);
       console.log("Sign up successful");
+      router.push("/home");
     }, 2000);
   };
 
