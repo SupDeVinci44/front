@@ -12,25 +12,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'  # Cache for npm
+          cache: 'npm' # Cache for npm
 
-      - name: Navigate to React Native directory
-        run: cd front/React-native
-
-      - name: Install npm dependencies
+      - name: Install npm Dependencies
         run: npm install
-        working-directory: front/React-native
+        working-directory: React-native
 
       - name: Run React Native Tests
         run: npm test
-        working-directory: front/React-native
+        working-directory: React-native
 
       - name: Build React Native Project
         run: npm run start
-        working-directory: front/React-native
+        working-directory: React-native
