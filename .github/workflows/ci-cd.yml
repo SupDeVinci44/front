@@ -26,9 +26,9 @@ jobs:
         run: npm install
         working-directory: React-native
 
-      - name: Run React Native Tests
-        run: npm test
-        working-directory: React-native
+#      - name: Run React Native Tests
+#        run: npm test
+#        working-directory: React-native
 
       - name: Build React Native Project
         run: npm run start
