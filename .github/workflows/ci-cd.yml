@@ -20,16 +20,21 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm' # Cache for npm
-          cache-dependency-path: React-native/package-lock.json
+          cache-dependency-path: React-native/package-lock.json # Specify the lock file location
 
       - name: Install npm Dependencies
         run: npm install
         working-directory: React-native
 
-#      - name: Run React Native Tests
-#        run: npm test
-#        working-directory: React-native
+      - name: Install Expo CLI and Ngrok Globally
+        run: |
+          npm install -g expo-cli
+          npm install -g @expo/ngrok@^4.1.0
 
-      - name: Build React Native Project
-        run: npm run start
+      - name: Run React Native Tests
+        run: npm test
+        working-directory: React-native
+
+      - name: Start React Native Project
+        run: npm run start -- --no-input --tunnel
         working-directory: React-native
