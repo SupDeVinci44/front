@@ -22,13 +22,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan push-n3-par-clevercloud-customers.services.clever-cloud.com >> ~/.ssh/known_hosts
 
-      - name: Navigate to React-native directory
-        run: cd React-native
-
       - name: Add Clever Cloud remote
         run: git remote add clever git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_9b882343-c9f5-40e1-8676-83105ba6e7f2.git
-        working-directory: React-native
 
       - name: Push to Clever Cloud
         run: git push --force clever main:master
-        working-directory: React-native
