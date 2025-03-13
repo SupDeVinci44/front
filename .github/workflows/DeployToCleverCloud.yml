@@ -1,10 +1,10 @@
 name: Deploy to Clever Cloud
 
 on:
-  push:
-    branches:
-      - main
-
+  workflow_run:
+    workflows: ["Full Stack CI (Java + React Native) "]
+    types:
+      - completed
 jobs:
   deploy:
     runs-on: ubuntu-latest
