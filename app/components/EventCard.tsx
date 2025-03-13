@@ -1,12 +1,15 @@
 import React from "react";
 import { Card, Title, Paragraph, Button, useTheme } from "react-native-paper";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function EventCard({ event }) {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
     <Card style={styles.card}>
+      <Card.Cover source={{ uri: 'https://st5.depositphotos.com/23188010/77062/i/450/depositphotos_770624600-stock-photo-green-field-morning-render-illustration.jpg' }} />
       <Card.Content>
         <Title>{event.title}</Title>
         <Paragraph>{event.description}</Paragraph>
@@ -15,7 +18,7 @@ export default function EventCard({ event }) {
         <Text style={{ color: theme.colors.primary }}>
           {event.date} - {event.time}
         </Text>
-        <Button onPress={() => console.log(`Event ${event.id} pressed`)}>Voir Plus</Button>
+        <Button onPress={() => router.push(`/${event.id}`)}>Voir Plus</Button>
       </Card.Actions>
     </Card>
   );
