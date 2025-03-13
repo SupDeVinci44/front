@@ -1,4 +1,4 @@
-name: Frontend CI (React Native) with CodeQL
+name: Frontend with CodeQL
 on:
   push:
     branches: [ "main" ]
