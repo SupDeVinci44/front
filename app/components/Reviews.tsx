@@ -1,10 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "react-native-paper";
+import { useTheme, Button } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function Reviews({ reviews }) {
     const { colors } = useTheme();
+    const router = useRouter();
 
     const renderStars = (rating) => {
         const stars = [];
@@ -37,6 +39,13 @@ export default function Reviews({ reviews }) {
             ) : (
                 <Text style={styles.noReviews}>Aucun avis pour cet événement.</Text>
             )}
+            <Button
+                mode="contained"
+                onPress={() => router.push("/avis")}
+                style={styles.addButton}
+            >
+                + Ajouter un avis
+            </Button>
         </View>
     );
 }
@@ -73,13 +82,12 @@ const styles = StyleSheet.create({
         color: "#666",
         marginBottom: 8,
     },
-    reviewRating: {
-        fontSize: 16,
-        color: "#999",
-    },
     noReviews: {
         fontSize: 16,
         color: "#999",
         textAlign: "center",
+    },
+    addButton: {
+        marginTop: 16,
     },
 });

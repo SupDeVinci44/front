@@ -16,28 +16,61 @@ export default function Index() {
 
   const router = useRouter();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    // Simulate an API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: emailOrPseudo,
+        password: password,
+      }),
+      });
+      const data = await response.json();
       setLoading(false);
-      console.log("Login successful");
+      if (response.ok) {
       router.push("/home");
-    }, 2000);
+      } else {
+      setError(data.message || "Une erreur s'est produite");
+      }
+    } catch (error) {
+      setLoading(false);
+      setError("Une erreur s'est produite");
+    }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (password !== confirmPassword && !showPassword) {
       setError("Les mots de passe ne correspondent pas");
       return;
     }
     setLoading(true);
-    // Simulate an API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: pseudo,
+          email: email,
+          password: password,
+        }),
+      });
+      const data = await response.json();
       setLoading(false);
-      console.log("Sign up successful");
-      router.push("/home");
-    }, 2000);
+      if (response.ok) {
+        router.push("/home");
+      } else {
+        setError(data.message || "Une erreur s'est produite");
+      }
+    } catch (error) {
+      setLoading(false);
+      setError("Une erreur s'est produite");
+    }
   };
 
   const getPasswordStrength = () => {
@@ -126,7 +159,7 @@ export default function Index() {
         </>
       ) : (
         <TextInput
-          label="Email ou Pseudo"
+          label="Pseudo"
           value={emailOrPseudo}
           onChangeText={setEmailOrPseudo}
           style={styles.input}
