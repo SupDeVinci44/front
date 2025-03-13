@@ -1,0 +1,41 @@
+name: Full Stack CI (Java + React Native)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend:
+    name: Build and Test Frontend (React Native)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install npm Dependencies
+        run: |
+          npm install
+          npm install --save-dev @types/react-native
+
+      - name: Install Expo CLI Globally
+        run: npm install -g @expo/cli
+
+      # Uncomment if you have tests and want to run them
+      # - name: Run React Native Tests
+      #   run: npm test -- --ci --coverage
+      #   working-directory: React-native
+
+      - name: Build React Native Project
+        run: npx expo export --platform web
+        env:
+          CI: true # Disable interactive prompts
