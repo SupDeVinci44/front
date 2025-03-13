@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { TextInput, Button, Text, ActivityIndicator } from "react-native-paper";
 import { useRouter } from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
   const [emailOrPseudo, setEmailOrPseudo] = useState("");
@@ -20,21 +21,23 @@ export default function Index() {
     setLoading(true);
     try {
       const response = await fetch(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: emailOrPseudo,
-        password: password,
-      }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: emailOrPseudo,
+          password: password,
+        }),
       });
       const data = await response.json();
       setLoading(false);
       if (response.ok) {
-      router.push("/home");
+        // Store the token
+        await AsyncStorage.setItem('token', data.token);
+        router.push("/home");
       } else {
-      setError(data.message || "Une erreur s'est produite");
+        setError(data.message || "Une erreur s'est produite");
       }
     } catch (error) {
       setLoading(false);
@@ -63,6 +66,8 @@ export default function Index() {
       const data = await response.json();
       setLoading(false);
       if (response.ok) {
+        // Store the token
+        await AsyncStorage.setItem('token', data.token);
         router.push("/home");
       } else {
         setError(data.message || "Une erreur s'est produite");

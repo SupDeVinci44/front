@@ -1,24 +1,26 @@
 import React from "react";
 import { Card, Title, Paragraph, Button, useTheme } from "react-native-paper";
-import { StyleSheet, View, Text, Image, Platform } from "react-native";
+import { StyleSheet, Text, Platform } from "react-native";
 import { useRouter } from "expo-router";
 
 export default function EventCard({ event }) {
   const theme = useTheme();
   const router = useRouter();
+  console.log(event);
+  console.log("event");
 
   return (
     <Card style={styles.card}>
-      <Card.Cover source={{ uri: 'https://st5.depositphotos.com/23188010/77062/i/450/depositphotos_770624600-stock-photo-green-field-morning-render-illustration.jpg' }} />
+      <Card.Cover source={{ uri: event.lienImageEvenement }} />
       <Card.Content>
-        <Title>{event.title}</Title>
-        <Paragraph numberOfLines={2} ellipsizeMode="tail">{event.description}</Paragraph>
+        <Title numberOfLines={1} ellipsizeMode="tail">{event.titre}</Title>
+        <Paragraph numberOfLines={2} ellipsizeMode="tail">{event.resume}</Paragraph>
       </Card.Content>
       <Card.Actions style={styles.actions}>
         <Text style={{ color: theme.colors.primary }}>
-          {event.date} - {event.time}
+          {event.resumeHoraire}
         </Text>
-        <Button onPress={() => router.push(`/${event.id}`)}>Voir Plus</Button>
+        <Button onPress={() => router.push(`/${event.idEvenement}`)}>Voir Plus</Button>
       </Card.Actions>
     </Card>
   );
