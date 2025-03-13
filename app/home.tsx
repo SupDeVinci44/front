@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, TextInput } from "react-native";
+import { ScrollView, StyleSheet, TextInput, View, Platform } from "react-native";
 import EventCard from "./components/EventCard";
 
 const events = [
@@ -17,7 +17,7 @@ const events = [
   { id: 12, title: "Atelier de développement mobile", description: "Un atelier pour apprendre à développer des applications mobiles.", date: "2023-11-12", time: "16:00" },
   { id: 13, title: "Séminaire sur l'IoT", description: "Un séminaire pour comprendre les technologies de l'Internet des objets.", date: "2023-11-13", time: "08:00" },
   { id: 14, title: "Rencontre des ingénieurs logiciels", description: "Une rencontre pour échanger avec des ingénieurs logiciels et partager des expériences.", date: "2023-11-14", time: "11:00" },
-  { id: 15, title: "Hackathon de réalité virtuelle", description: "Un hackathon de 48 heures pour développer des projets en réalité virtuelle.", date: "2023-11-15", time: "13:00" },
+  { id: 15, title: "Hackathon de réalité virtuelle", description: "Un hackathon de 48 heures pour développer des projets en réalité virtuelle.bvhgc vhikv vhgvhbjgbkhjchkbvhgcvhchjvfxfvgjhgchgcdxdxcgjhvcugtcgcxgfgcjcghgddddddddddddddddddddddddddddddddddddddddddd", date: "2023-11-15", time: "13:00" },
 ];
 
 export default function Home() {
@@ -35,9 +35,13 @@ export default function Home() {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      {filteredEvents.map((event) => (
-        <EventCard key={event.id} event={event} />
-      ))}
+      <View style={styles.cardsContainer}>
+        {filteredEvents.map((event) => (
+          <View key={event.id} style={styles.card}>
+            <EventCard event={event} />
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 }
@@ -45,8 +49,6 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 16,
   },
   searchBar: {
@@ -58,8 +60,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     width: '100%',
   },
+  cardsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   card: {
+    width: Platform.OS === 'web' ? '30%' : '100%',
     marginBottom: 16,
-    width: '100%',
   },
 });

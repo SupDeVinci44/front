@@ -3,16 +3,16 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --tunnel",
-    "start-web": "expo start --web",
+    "start": "expo start --web --port 8080",
+    "start-app": "expo start --tunnel",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "ngrok": "ngrok http 8081",
-    "start:ngrok": "concurrently \"expo start\" \"ngrok http 8081\""
+    "ngrok": "ngrok http 8080",
+    "start:ngrok": "concurrently \"expo start\" \"ngrok http 8080\""
   },
   "jest": {
     "preset": "jest-expo"
@@ -34,6 +34,7 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
+    "http-proxy-middleware": "^3.0.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
