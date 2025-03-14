@@ -14,8 +14,9 @@ export default function Reviews({ reviews, onAddReview }) {
             {reviews.length > 0 ? (
                 reviews.map(review => (
                     <View key={review.id} style={styles.review}>
-                        <Text style={styles.reviewTitle}>{review.title}</Text>
-                        <Text style={styles.reviewComment}>{review.comment}</Text>
+                        <Text style={styles.reviewTitle}>{review.user.username}</Text>
+                        <Text style={styles.reviewComment}>{review.content}</Text>
+                        <Text style={styles.reviewDate}>{new Date(review.createdAt).toLocaleDateString()}</Text>
                     </View>
                 ))
             ) : (
@@ -71,5 +72,10 @@ const styles = StyleSheet.create({
     },
     addButton: {
         marginTop: 16,
+    },
+    reviewDate: {
+        fontSize: 14,
+        color: "#999",
+        textAlign: "right",
     },
 });

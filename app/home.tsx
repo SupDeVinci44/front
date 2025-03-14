@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, StyleSheet, TextInput, View, Platform, Text, Button } from "react-native";
-import { ActivityIndicator } from 'react-native-paper';
+import { ScrollView, StyleSheet, TextInput, View, Platform, Text } from "react-native";
+import { ActivityIndicator, Button } from 'react-native-paper';
 import EventCard from "./components/EventCard";
 import { getToken } from "./utils/storage";
 
@@ -27,7 +27,7 @@ export default function Home() {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/evenements`, {
+        const response = await fetch(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/evenements/ville/Nantes`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -83,7 +83,9 @@ export default function Home() {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        <Button title="Rechercher" onPress={handleSearch} />
+        <Button mode="contained" onPress={handleSearch}>
+        Rechercher
+        </Button>
       </View>
       {loading ? (
         <ActivityIndicator animating={true} size="large" />

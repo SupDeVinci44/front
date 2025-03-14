@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
-import { useTheme } from "react-native-paper";
+import { useTheme, Button } from "react-native-paper";
 import { useLocalSearchParams } from "expo-router";
 import { FontAwesome } from '@expo/vector-icons';
 import Reviews from "./components/Reviews";
 import axios from "axios";
 import Avis from "./avis"; 
+import { getToken } from "./utils/storage";
 
 export default function EventDetail() {
     const theme = useTheme();
@@ -27,19 +28,29 @@ export default function EventDetail() {
     const [modalVisible, setModalVisible] = useState(false);
     const [likes, setLikes] = useState(0);
     const [liked, setLiked] = useState(false);
+    const [token, setToken] = useState("");
 
     const handleAddReview = () => {
         setModalVisible(true);
     };
 
+    useEffect(() => {
+        const fetchToken = async () => {
+            const token = await getToken();
+            setToken(token || "");
+        };
+
+        fetchToken();
+    }, []);
+
     const fetchLikes = async () => {
         try {
             const response = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/likes/evenement/${eventId}/status`, {
                 headers: {
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSb21hYWEiLCJpYXQiOjE3NDE4NzM0MDAsImV4cCI6MTc0MTk1OTgwMH0.o8FcOHx64eTViGa9-y-M6sqz3Kt9XN1rPMqHQXKnEXc'
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            setLikes(response.data.likes);
+            setLikes(response.data.likeCount);
             setLiked(response.data.liked);
         } catch (err) {
             console.error("Failed to fetch likes", err);
@@ -50,7 +61,7 @@ export default function EventDetail() {
         try {
             await axios.post(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/likes/evenement/${eventId}`, {}, {
                 headers: {
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSb21hYWEiLCJpYXQiOjE3NDE4NzM0MDAsImV4cCI6MTc0MTk1OTgwMH0.o8FcOHx64eTViGa9-y-M6sqz3Kt9XN1rPMqHQXKnEXc'
+                    'Authorization': `Bearer ${token}`
                 }
             });
             setLiked(true);
@@ -60,21 +71,29 @@ export default function EventDetail() {
         }
     };
 
+    const fetchEventReviews = async () => {
+        try {
+            const reviewsResponse = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/comments/evenement/${eventId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setEventReviews(reviewsResponse.data.content);
+        } catch (err) {
+            console.error("Failed to fetch reviews", err);
+        }
+    };
+
     useEffect(() => {
         const fetchEventDetails = async () => {
             try {
                 const eventResponse = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/evenements/${eventId}`, {
                     headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSb21hYWEiLCJpYXQiOjE3NDE4NzM0MDAsImV4cCI6MTc0MTk1OTgwMH0.o8FcOHx64eTViGa9-y-M6sqz3Kt9XN1rPMqHQXKnEXc'
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 setEvent(eventResponse.data);
-                const reviewsResponse = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/comments/evenement/${eventId}`, {
-                    headers: {
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJSb21hYWEiLCJpYXQiOjE3NDE4NzM0MDAsImV4cCI6MTc0MTk1OTgwMH0.o8FcOHx64eTViGa9-y-M6sqz3Kt9XN1rPMqHQXKnEXc'
-                    }
-                });
-                setEventReviews(reviewsResponse.data);
+                await fetchEventReviews();
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message);
@@ -86,9 +105,11 @@ export default function EventDetail() {
             }
         };
 
-        fetchEventDetails();
-        fetchLikes();
-    }, [eventId]);
+        if (token) {
+            fetchEventDetails();
+            fetchLikes();
+        }
+    }, [eventId, token]);
 
     if (loading) {
         return (
@@ -145,13 +166,7 @@ export default function EventDetail() {
                     <Text style={styles.details}>Conditions: {event.detailsCondition}</Text>
                 </View>
             </View>
-            <View style={styles.likeContainer}>
-                <TouchableOpacity onPress={handleLike} disabled={liked}>
-                    <FontAwesome name={liked ? "thumbs-up" : "thumbs-o-up"} size={24} color={theme.colors.primary} />
-                </TouchableOpacity>
-                <Text style={styles.likeCount}>{likes}</Text>
-            </View>
-            <Reviews reviews={eventReviews} onAddReview={handleAddReview} />
+            <Reviews reviews={eventReviews} onAddReview={() => setModalVisible(true)} />
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -160,7 +175,13 @@ export default function EventDetail() {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Avis onClose={() => setModalVisible(false)} eventId={eventId} />
+                        <Avis onClose={() => {
+                            setModalVisible(false);
+                            fetchEventReviews();
+                        }} eventId={eventId} />
+                        <Button mode="contained" onPress={() => setModalVisible(false)} style={styles.quitButton}>
+                            Quitter
+                        </Button>
                     </View>
                 </View>
             </Modal>
@@ -245,5 +266,8 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         fontSize: 16,
         color: "#333",
+    },
+    quitButton: {
+        marginTop: 16,
     },
 });
