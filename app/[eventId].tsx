@@ -1,38 +1,131 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
-import { useTheme } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, ScrollView, Modal, TouchableOpacity } from "react-native";
+import { useTheme, Button } from "react-native-paper";
 import { useLocalSearchParams } from "expo-router";
 import { FontAwesome } from '@expo/vector-icons';
 import Reviews from "./components/Reviews";
-
-const events = [
-    { id: 1, title: "Conférence sur l'IA", description: "Une conférence sur les dernières avancées en intelligence artificielle.", date: "2023-11-01", time: "10:00", lieu: "Paris", age_minimum: 18, age_maximum: 60, etat: "Actif", details_condition: "Aucune", credit_image: "https://st5.depositphotos.com/23188010/77062/i/450/depositphotos_770624600-stock-photo-green-field-morning-render-illustration.jpg" },
-    { id: 2, title: "Atelier de développement web", description: "Un atelier pratique pour apprendre les bases du développement web.", date: "2023-11-02", time: "14:00" },
-    { id: 3, title: "Séminaire sur la cybersécurité", description: "Un séminaire pour comprendre les enjeux de la cybersécurité.", date: "2023-11-03", time: "09:00" },
-    { id: 4, title: "Rencontre des développeurs", description: "Une rencontre pour échanger avec d'autres développeurs et partager des expériences.", date: "2023-11-04", time: "16:00" },
-    { id: 5, title: "Hackathon", description: "Un hackathon de 48 heures pour développer des projets innovants.", date: "2023-11-05", time: "08:00" },
-    { id: 6, title: "Formation en machine learning", description: "Une formation pour apprendre les bases du machine learning.", date: "2023-11-06", time: "11:00" },
-    { id: 7, title: "Conférence sur le cloud computing", description: "Une conférence sur les technologies de cloud computing.", date: "2023-11-07", time: "13:00" },
-    { id: 8, title: "Atelier de design UX/UI", description: "Un atelier pour apprendre les principes de design UX/UI.", date: "2023-11-08", time: "15:00" },
-    { id: 9, title: "Séminaire sur la blockchain", description: "Un séminaire pour comprendre les technologies de la blockchain.", date: "2023-11-09", time: "10:00" },
-    { id: 10, title: "Rencontre des startups", description: "Une rencontre pour échanger avec des startups et des entrepreneurs.", date: "2023-11-10", time: "14:00" },
-    { id: 11, title: "Conférence sur les big data", description: "Une conférence sur les technologies et les applications des big data.", date: "2023-11-11", time: "09:00" },
-    { id: 12, title: "Atelier de développement mobile", description: "Un atelier pour apprendre à développer des applications mobiles.", date: "2023-11-12", time: "16:00" },
-    { id: 13, title: "Séminaire sur l'IoT", description: "Un séminaire pour comprendre les technologies de l'Internet des objets.", date: "2023-11-13", time: "08:00" },
-    { id: 14, title: "Rencontre des ingénieurs logiciels", description: "Une rencontre pour échanger avec des ingénieurs logiciels et partager des expériences.", date: "2023-11-14", time: "11:00" },
-    { id: 15, title: "Hackathon de réalité virtuelle", description: "Un hackathon de 48 heures pour développer des projets en réalité virtuelle.", date: "2023-11-15", time: "13:00" },
-];
-
-const reviews = [
-    { id: 1, eventId: 1, userId: 1, title: "Super conférence", comment: "J'ai beaucoup appris sur l'IA.", rating: 5 },
-    { id: 2, eventId: 1, userId: 2, title: "Très intéressant", comment: "Les sujets abordés étaient pertinents.", rating: 4 },
-];
+import axios from "axios";
+import Avis from "./avis"; 
+import { getToken } from "./utils/storage";
 
 export default function EventDetail() {
     const theme = useTheme();
     const { eventId } = useLocalSearchParams();
-    const event = events.find(e => e.id === parseInt(eventId));
-    const eventReviews = reviews.filter(review => review.eventId === parseInt(eventId));
+    const [event, setEvent] = useState<{ 
+        lienImageEvenement: string; 
+        titre: string; 
+        description: string; 
+        resumeHoraire: string; 
+        lieu: { nomLieu: string }; 
+        ageMinimum: number; 
+        ageMaximum: number; 
+        etat: string; 
+        detailsCondition: string; 
+    } | null>(null);
+    const [eventReviews, setEventReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [likes, setLikes] = useState(0);
+    const [liked, setLiked] = useState(false);
+    const [token, setToken] = useState("");
+
+    const handleAddReview = () => {
+        setModalVisible(true);
+    };
+
+    useEffect(() => {
+        const fetchToken = async () => {
+            const token = await getToken();
+            setToken(token || "");
+        };
+
+        fetchToken();
+    }, []);
+
+    const fetchLikes = async () => {
+        try {
+            const response = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/likes/evenement/${eventId}/status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setLikes(response.data.likeCount);
+            setLiked(response.data.liked);
+        } catch (err) {
+            console.error("Failed to fetch likes", err);
+        }
+    };
+
+    const handleLike = async () => {
+        try {
+            await axios.post(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/likes/evenement/${eventId}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setLiked(true);
+            setLikes(likes + 1);
+        } catch (err) {
+            console.error("Failed to like the event", err);
+        }
+    };
+
+    const fetchEventReviews = async () => {
+        try {
+            const reviewsResponse = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/comments/evenement/${eventId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setEventReviews(reviewsResponse.data.content);
+        } catch (err) {
+            console.error("Failed to fetch reviews", err);
+        }
+    };
+
+    useEffect(() => {
+        const fetchEventDetails = async () => {
+            try {
+                const eventResponse = await axios.get(`https://app-80651435-7b96-4c7f-a772-4fcbfd695794.cleverapps.io/api/evenements/${eventId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setEvent(eventResponse.data);
+                await fetchEventReviews();
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("Une erreur inconnue s'est produite");
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (token) {
+            fetchEventDetails();
+            fetchLikes();
+        }
+    }, [eventId, token]);
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>{error}</Text>
+            </View>
+        );
+    }
 
     if (!event) {
         return (
@@ -44,25 +137,25 @@ export default function EventDetail() {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Image source={{ uri: event.credit_image }} style={styles.image} />
-            <Text style={styles.title}>{event.title}</Text>
+            <Image source={{ uri: event.lienImageEvenement }} style={styles.image} />
+            <Text style={styles.title}>{event.titre}</Text>
             <Text style={styles.description}>{event.description}</Text>
             <View style={styles.infoContainer}>
                 <View style={styles.infoRow}>
                     <FontAwesome name="calendar" size={16} color={theme.colors.primary} />
-                    <Text style={styles.dateTime}>{event.date} - {event.time}</Text>
+                    <Text style={styles.dateTime}>{event.resumeHoraire}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <FontAwesome name="map-marker" size={16} color={theme.colors.primary} />
-                    <Text style={styles.details}>Lieu: {event.lieu}</Text>
+                    <Text style={styles.details}>Lieu: {event.lieu.nomLieu}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <FontAwesome name="user" size={16} color={theme.colors.primary} />
-                    <Text style={styles.details}>Âge minimum: {event.age_minimum}</Text>
+                    <Text style={styles.details}>Âge minimum: {event.ageMinimum}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <FontAwesome name="user" size={16} color={theme.colors.primary}/>
-                    <Text style={styles.details}>Âge maximum: {event.age_maximum}</Text>
+                    <Text style={styles.details}>Âge maximum: {event.ageMaximum}</Text>
                 </View>
                 <View style={styles.infoRow}>
                     <FontAwesome name="info-circle" size={16} color={theme.colors.primary} />
@@ -70,10 +163,28 @@ export default function EventDetail() {
                 </View>
                 <View style={styles.infoRow}>
                     <FontAwesome name="exclamation-circle" size={16} color={theme.colors.primary} />
-                    <Text style={styles.details}>Conditions: {event.details_condition}</Text>
+                    <Text style={styles.details}>Conditions: {event.detailsCondition}</Text>
                 </View>
             </View>
-            <Reviews reviews={eventReviews} />
+            <Reviews reviews={eventReviews} onAddReview={() => setModalVisible(true)} />
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Avis onClose={() => {
+                            setModalVisible(false);
+                            fetchEventReviews();
+                        }} eventId={eventId} />
+                        <Button mode="contained" onPress={() => setModalVisible(false)} style={styles.quitButton}>
+                            Quitter
+                        </Button>
+                    </View>
+                </View>
+            </Modal>
         </ScrollView>
     );
 }
@@ -133,5 +244,30 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "red",
         textAlign: "center",
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    modalContent: {
+        width: "90%",
+        padding: 20,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+    },
+    likeContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 16,
+    },
+    likeCount: {
+        marginLeft: 8,
+        fontSize: 16,
+        color: "#333",
+    },
+    quitButton: {
+        marginTop: 16,
     },
 });

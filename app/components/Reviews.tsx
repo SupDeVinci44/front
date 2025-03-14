@@ -4,24 +4,9 @@ import { useTheme, Button } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function Reviews({ reviews }) {
+export default function Reviews({ reviews, onAddReview }) {
     const { colors } = useTheme();
     const router = useRouter();
-
-    const renderStars = (rating) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            stars.push(
-                <MaterialIcons
-                    key={i}
-                    name={i <= rating ? "star" : "star-border"}
-                    size={24}
-                    color={colors.primary}
-                />
-            );
-        }
-        return stars;
-    };
 
     return (
         <View style={styles.reviewsContainer}>
@@ -29,11 +14,9 @@ export default function Reviews({ reviews }) {
             {reviews.length > 0 ? (
                 reviews.map(review => (
                     <View key={review.id} style={styles.review}>
-                        <Text style={styles.reviewTitle}>{review.title}</Text>
-                        <Text style={styles.reviewComment}>{review.comment}</Text>
-                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                            {renderStars(review.rating)}
-                        </View>
+                        <Text style={styles.reviewTitle}>{review.user.username}</Text>
+                        <Text style={styles.reviewComment}>{review.content}</Text>
+                        <Text style={styles.reviewDate}>{new Date(review.createdAt).toLocaleDateString()}</Text>
                     </View>
                 ))
             ) : (
@@ -41,7 +24,7 @@ export default function Reviews({ reviews }) {
             )}
             <Button
                 mode="contained"
-                onPress={() => router.push("/avis")}
+                onPress={onAddReview}
                 style={styles.addButton}
             >
                 + Ajouter un avis
@@ -89,5 +72,10 @@ const styles = StyleSheet.create({
     },
     addButton: {
         marginTop: 16,
+    },
+    reviewDate: {
+        fontSize: 14,
+        color: "#999",
+        textAlign: "right",
     },
 });
